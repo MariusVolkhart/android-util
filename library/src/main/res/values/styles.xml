@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <style name="None"></style>
+
+    <style name="AndroidUtil.TextAppearance.FloatLabel" parent="android:TextAppearance.Small">
+        <item name="android:textColor">@color/float_label</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AndroidUtil.Widget.FloatLabel" parent="None">
+        <item name="android:layout_marginTop">8dp</item>
+    </style>
+
+</resources>
