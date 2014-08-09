@@ -29,8 +29,7 @@ public abstract class ObjectCursorAdapter<T> extends CursorAdapter {
 
     @Override
     public T getItem(int position) {
-        super.getItem(position);
-        ObjectCursor<T> cursor = getCursor();
+        ObjectCursor<T> cursor = (ObjectCursor<T>) super.getItem(position);
         if (cursor != null) {
             return cursor.getModel();
         } else {
