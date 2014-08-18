@@ -5,9 +5,31 @@ import com.crashlytics.android.Crashlytics;
 import timber.log.Timber;
 
 /**
- * This Tree only logs INFO or higher messages. All messages are logged to Crashlytics.
+ * All messages are logged to Crashlytics.
  */
 public class CrashlyticsTree extends Timber.HollowTree {
+
+    @Override
+    public void v(String message, Object... args) {
+        Crashlytics.log(String.format(message, args));
+    }
+
+    @Override
+    public void v(Throwable throwable, String message, Object... args) {
+        v(message, args);
+        Crashlytics.logException(throwable);
+    }
+
+    @Override
+    public void d(String message, Object... args) {
+        Crashlytics.log(String.format(message, args));
+    }
+
+    @Override
+    public void d(Throwable throwable, String message, Object... args) {
+        d(message, args);
+        Crashlytics.logException(throwable);
+    }
 
     @Override
     public void i(String message, Object... args) {
@@ -16,8 +38,8 @@ public class CrashlyticsTree extends Timber.HollowTree {
 
     @Override
     public void i(Throwable throwable, String message, Object... args) {
-        Crashlytics.logException(throwable);
         i(message, args);
+        Crashlytics.logException(throwable);
     }
 
     @Override
@@ -27,8 +49,8 @@ public class CrashlyticsTree extends Timber.HollowTree {
 
     @Override
     public void w(Throwable throwable, String message, Object... args) {
-        Crashlytics.logException(throwable);
         w(message, args);
+        Crashlytics.logException(throwable);
     }
 
     @Override
@@ -38,7 +60,7 @@ public class CrashlyticsTree extends Timber.HollowTree {
 
     @Override
     public void e(Throwable throwable, String message, Object... args) {
-        Crashlytics.logException(throwable);
         e(message, args);
+        Crashlytics.logException(throwable);
     }
 }
