@@ -16,8 +16,8 @@
 
 package com.volkhart.androidutil.objectcursor;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -31,7 +31,7 @@ import java.util.Arrays;
  *
  * @param <T>
  */
-public class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor<T>> {
+public class ObjectCursorLoader<T> extends CursorLoader {
     final ForceLoadContentObserver mObserver;
     final String[] mProjection;
     // Copied over from CursorLoader, but none of our uses specify this. So these are hardcoded to
@@ -98,7 +98,11 @@ public class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor<T>> {
 
     /* Runs on the UI thread */
     @Override
-    public void deliverResult(ObjectCursor<T> cursor) {
+    public void deliverResult(Cursor resultCursor) {
+        if (!(resultCursor instanceof ObjectCursor)) {
+            throw new IllegalArgumentException("Result must be of type ObjectCursor");
+        }
+        ObjectCursor<T> cursor = (ObjectCursor<T>) resultCursor;
         if (isReset()) {
             // An async query came in while the loader is stopped
             if (cursor != null) {
@@ -145,7 +149,7 @@ public class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor<T>> {
     }
 
     @Override
-    public void onCanceled(ObjectCursor<T> cursor) {
+    public void onCanceled(Cursor cursor) {
         if (cursor != null && !cursor.isClosed()) {
             cursor.close();
         }
@@ -199,11 +203,11 @@ public class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor<T>> {
         return this;
     }
 
-    protected final Uri getUri() {
+    public final Uri getUri() {
         return mUri;
     }
 
-    protected final void setUri(Uri uri) {
+    public final void setUri(Uri uri) {
         if (uri == null) {
             throw new NullPointerException("The uri cannot be null");
         }
