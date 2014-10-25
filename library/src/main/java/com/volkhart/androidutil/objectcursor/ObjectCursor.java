@@ -97,4 +97,24 @@ public class ObjectCursor<T> extends CursorWrapper {
         mCache.clear();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ObjectCursor that = (ObjectCursor) o;
+
+        if (mCache != null ? !mCache.equals(that.mCache) : that.mCache != null) return false;
+        if (mFactory != null ? !mFactory.equals(that.mFactory) : that.mFactory != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mCache != null ? mCache.hashCode() : 0;
+        result = 31 * result + (mFactory != null ? mFactory.hashCode() : 0);
+        return result;
+    }
 }

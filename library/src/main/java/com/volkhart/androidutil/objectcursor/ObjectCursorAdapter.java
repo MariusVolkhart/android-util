@@ -2,6 +2,7 @@ package com.volkhart.androidutil.objectcursor;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ public abstract class ObjectCursorAdapter<T> extends CursorAdapter {
     @Override
     public T getItem(int position) {
         ObjectCursor<T> cursor = (ObjectCursor<T>) super.getItem(position);
-        if (cursor != null) {
+        if (cursor != null && !cursor.isAfterLast()) {
             return cursor.getModel();
         } else {
             return null;
@@ -38,6 +39,7 @@ public abstract class ObjectCursorAdapter<T> extends CursorAdapter {
     }
 
     @Override
+    @NonNull
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         return newView(getCursor().getModel(), inflater, parent);
     }
@@ -48,7 +50,7 @@ public abstract class ObjectCursorAdapter<T> extends CursorAdapter {
     public abstract View newView(T item, LayoutInflater inflater, ViewGroup parent);
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(@NonNull View view, Context context, @NonNull Cursor cursor) {
         bindView(view, getCursor().getModel());
     }
 

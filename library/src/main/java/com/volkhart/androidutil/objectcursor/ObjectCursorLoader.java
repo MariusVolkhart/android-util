@@ -16,8 +16,8 @@
 
 package com.volkhart.androidutil.objectcursor;
 
+import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -31,13 +31,9 @@ import java.util.Arrays;
  *
  * @param <T>
  */
-public class ObjectCursorLoader<T> extends CursorLoader {
+public class ObjectCursorLoader<T> extends AsyncTaskLoader<ObjectCursor<T>> {
     final ForceLoadContentObserver mObserver;
     final String[] mProjection;
-    // Copied over from CursorLoader, but none of our uses specify this. So these are hardcoded to
-    // null right here.
-    final String mSelection = null;
-    final String[] mSelectionArgs = null;
     final String mSortOrder = null;
     /**
      * The factory that knows how to create T objects from cursors: one object per row.
@@ -50,8 +46,7 @@ public class ObjectCursorLoader<T> extends CursorLoader {
     private Uri mUri;
     private int mDebugDelayMs = 0;
 
-    public ObjectCursorLoader(Context context, Uri uri, String[] projection,
-                              CursorCreator<T> factory) {
+    public ObjectCursorLoader(Context context, Uri uri, String[] projection, CursorCreator<T> factory) {
         super(context);
 
         /*
@@ -71,8 +66,7 @@ public class ObjectCursorLoader<T> extends CursorLoader {
     /* Runs on a worker thread */
     @Override
     public ObjectCursor<T> loadInBackground() {
-        final Cursor inner = getContext().getContentResolver().query(mUri, mProjection,
-                mSelection, mSelectionArgs, mSortOrder);
+        final Cursor inner = getContext().getContentResolver().query(mUri, mProjection, null, null, mSortOrder);
         if (inner != null) {
             // Ensure the cursor window is filled
             inner.getCount();
@@ -98,11 +92,7 @@ public class ObjectCursorLoader<T> extends CursorLoader {
 
     /* Runs on the UI thread */
     @Override
-    public void deliverResult(Cursor resultCursor) {
-        if (!(resultCursor instanceof ObjectCursor)) {
-            throw new IllegalArgumentException("Result must be of type ObjectCursor");
-        }
-        ObjectCursor<T> cursor = (ObjectCursor<T>) resultCursor;
+    public void deliverResult(ObjectCursor<T> cursor) {
         if (isReset()) {
             // An async query came in while the loader is stopped
             if (cursor != null) {
@@ -149,7 +139,7 @@ public class ObjectCursorLoader<T> extends CursorLoader {
     }
 
     @Override
-    public void onCanceled(Cursor cursor) {
+    public void onCanceled(ObjectCursor<T> cursor) {
         if (cursor != null && !cursor.isClosed()) {
             cursor.close();
         }
@@ -177,12 +167,6 @@ public class ObjectCursorLoader<T> extends CursorLoader {
         writer.print(prefix);
         writer.print("mProjection=");
         writer.println(Arrays.toString(mProjection));
-        writer.print(prefix);
-        writer.print("mSelection=");
-        writer.println(mSelection);
-        writer.print(prefix);
-        writer.print("mSelectionArgs=");
-        writer.println(Arrays.toString(mSelectionArgs));
         writer.print(prefix);
         writer.print("mSortOrder=");
         writer.println(mSortOrder);
@@ -212,5 +196,30 @@ public class ObjectCursorLoader<T> extends CursorLoader {
             throw new NullPointerException("The uri cannot be null");
         }
         mUri = uri;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ObjectCursorLoader that = (ObjectCursorLoader) o;
+
+        if (mCursor != null ? !mCursor.equals(that.mCursor) : that.mCursor != null) return false;
+        if (!Arrays.equals(mProjection, that.mProjection)) return false;
+        if (mSortOrder != null ? !mSortOrder.equals(that.mSortOrder) : that.mSortOrder != null)
+            return false;
+        if (mUri != null ? !mUri.equals(that.mUri) : that.mUri != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mProjection != null ? Arrays.hashCode(mProjection) : 0;
+        result = 31 * result + (mSortOrder != null ? mSortOrder.hashCode() : 0);
+        result = 31 * result + (mCursor != null ? mCursor.hashCode() : 0);
+        result = 31 * result + (mUri != null ? mUri.hashCode() : 0);
+        return result;
     }
 }
