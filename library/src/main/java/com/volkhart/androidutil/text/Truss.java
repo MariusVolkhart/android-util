@@ -1,7 +1,7 @@
 /*
-Original file at https://gist.github.com/JakeWharton/11274467
-
-Licensed under Apache License, Version 2.0
+ * Original file at https://gist.github.com/JakeWharton/11274467
+ *
+ * Licensed under Apache License, Version 2.0
  */
 package com.volkhart.androidutil.text;
 
